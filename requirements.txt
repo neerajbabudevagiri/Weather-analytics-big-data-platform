@@ -1,0 +1,7 @@
+requests
+pandas
+pyspark==3.5.1
+kafka-python-ng
+streamlit
+plotly
+pyarrow
