@@ -28,12 +28,13 @@ Streaming: Python producer -> Kafka -> Spark Structured Streaming -> Parquet -> 
 3. `pip install -r requirements.txt`
 4. `docker compose up -d`
 5. On Windows, place `winutils.exe` and `hadoop.dll` in `C:\hadoop\bin` and set `HADOOP_HOME=C:\hadoop`
+6. Once, in an Administrator PowerShell, add `127.0.0.1 datanode` to `C:\Windows\System32\drivers\etc\hosts` so Windows can reach the HDFS DataNode by its advertised hostname.
 
 ## Run order
 
 1. `python src\collect_historical.py` (downloads 10 years of hourly data)
 2. Upload CSVs to HDFS (`/weather/raw`)
-3. `python src\spark_batch.py`
+3. `python src\spark_batch.py` (reads the CSVs directly from HDFS at `hdfs://localhost:9000/weather/raw/`; batch Parquet output remains local)
 4. `python src\kafka_producer.py` (terminal 1)
 5. `python src\spark_streaming.py` (terminal 2)
 6. `streamlit run dashboard\app.py`

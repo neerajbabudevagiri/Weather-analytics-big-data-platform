@@ -1,10 +1,12 @@
 from pyspark.sql import SparkSession, functions as F
 
 spark = (SparkSession.builder.appName("WeatherBatch")
-         .master("local[*]").getOrCreate())
+         .master("local[*]")
+         .config("spark.hadoop.dfs.client.use.datanode.hostname", "true")
+         .getOrCreate())
 spark.sparkContext.setLogLevel("WARN")
 
-df = spark.read.csv("data/raw/*.csv", header=True, inferSchema=True)
+df = spark.read.csv("hdfs://localhost:9000/weather/raw/*.csv", header=True, inferSchema=True)
 df = (df.withColumn("ts", F.to_timestamp("time"))
         .withColumn("year", F.year("ts"))
         .withColumn("month", F.month("ts"))
