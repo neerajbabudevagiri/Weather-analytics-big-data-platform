@@ -5,6 +5,15 @@ $root = $PSScriptRoot
 Set-Location $root
 $py = Join-Path $root "venv\Scripts\python.exe"
 
+# One-time: make 'datanode' resolve to this PC so Spark can read from HDFS
+$hostsPath = "$env:windir\System32\drivers\etc\hosts"
+$hasEntry = Select-String -Path $hostsPath -Pattern '^\s*127\.0\.0\.1\s+datanode(\s|$)' -Quiet
+if (-not $hasEntry) {
+    Write-Host "Adding 'datanode' to the hosts file (one-time, Windows will ask for admin approval)..." -ForegroundColor Yellow
+    $cmd = "Add-Content -Path '$hostsPath' -Value ([Environment]::NewLine + '127.0.0.1 datanode'); ipconfig /flushdns"
+    Start-Process powershell -Verb RunAs -Wait -ArgumentList "-NoProfile", "-Command", $cmd
+}
+
 function Step($msg) { Write-Host "`n==> $msg" -ForegroundColor Cyan }
 
 if (-not (Test-Path $py)) {
